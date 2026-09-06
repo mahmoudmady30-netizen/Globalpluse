@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>GlobalPulse News — نبض السوق</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600&family=IBM+Plex+Sans+Arabic:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #0E141C;
+    --panel: #161F2A;
+    --border: #2A3441;
+    --text-primary: #ECEFF2;
+    --text-secondary: #93A0AF;
+    --gold: #C9A227;
+    --bullish: #3FA796;
+    --bearish: #C1554D;
+    --neutral: #7C8794;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--ink);
+    color: var(--text-primary);
+    font-family: 'IBM Plex Sans Arabic', sans-serif;
+    line-height: 1.6;
+  }
+
+  .ltr { direction: ltr; unicode-bidi: isolate; font-family: 'IBM Plex Mono', monospace; }
+
+  header {
+    padding: 40px 32px 28px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  h1 {
+    font-family: 'Fraunces', serif;
+    font-size: clamp(28px, 4vw, 42px);
+    font-weight: 600;
+    margin: 0 0 8px;
+    color: var(--text-primary);
+  }
+
+  header p {
+    color: var(--text-secondary);
+    max-width: 640px;
+    margin: 0;
+    font-size: 15px;
+  }
+
+  .notice {
+    margin-top: 18px;
+    padding: 12px 16px;
+    background: rgba(201, 162, 39, 0.08);
+    border: 1px solid rgba(201, 162, 39, 0.3);
+    border-radius: 4px;
+    font-size: 13.5px;
+    color: var(--gold);
+    max-width: 640px;
+  }
+
+  .controls {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    padding: 20px 32px;
+    border-bottom: 1px solid var(--border);
+    flex-wrap: wrap;
+  }
+
+  .tab {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text-secondary);
+    padding: 8px 18px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 14px;
+  }
+
+  .tab.active {
+    border-color: var(--gold);
+    color: var(--gold);
+  }
+
+  .refresh {
+    margin-inline-start: auto;
+    background: var(--gold);
+    color: var(--ink);
+    border: none;
+    padding: 8px 18px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-family: inherit;
+    font-weight: 500;
+    font-size: 14px;
+  }
+
+  .refresh:disabled { opacity: 0.5; cursor: default; }
+
+  main { padding: 8px 32px 60px; max-width: 900px; margin: 0 auto; }
+
+  .status-line {
+    color: var(--text-secondary);
+    font-size: 13px;
+    padding: 16px 0 8px;
+  }
+
+  .row {
+    display: grid;
+    grid-template-columns: 14px 1fr;
+    gap: 14px;
+    padding: 18px 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    margin-top: 6px;
+  }
+  .dot.bullish { background: var(--bullish); }
+  .dot.bearish { background: var(--bearish); }
+  .dot.neutral { background: var(--neutral); }
+
+  .row-head {
+    display: flex;
+    gap: 10px;
+    align-items: baseline;
+    flex-wrap: wrap;
+    margin-bottom: 4px;
+  }
+
+  .ticker {
+    font-size: 13px;
+    color: var(--gold);
+    font-weight: 500;
+  }
+
+  .sentiment-tag {
+    font-size: 12px;
+    padding: 2px 8px;
+    border-radius: 3px;
+    border: 1px solid currentColor;
+  }
+  .sentiment-tag.bullish { color: var(--bullish); }
+  .sentiment-tag.bearish { color: var(--bearish); }
+  .sentiment-tag.neutral { color: var(--neutral); }
+
+  .headline {
+    font-size: 16px;
+    color: var(--text-primary);
+    text-decoration: none;
+    font-weight: 500;
+  }
+  .headline:hover { color: var(--gold); }
+
+  .meta {
+    font-size: 12.5px;
+    color: var(--text-secondary);
+    margin-top: 6px;
+  }
+
+  .data-status {
+    font-size: 11px;
+    color: var(--text-secondary);
+    border: 1px solid var(--border);
+    padding: 1px 6px;
+    border-radius: 3px;
+  }
+
+  .verify-tag {
+    font-size: 11px;
+    padding: 1px 8px;
+    border-radius: 3px;
+  }
+  .verify-tag.multi { color: var(--bullish); border: 1px solid var(--bullish); }
+  .verify-tag.single { color: var(--text-secondary); border: 1px solid var(--border); }
+
+  .impact {
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin-top: 8px;
+    padding-inline-start: 10px;
+    border-inline-start: 2px solid var(--border);
+  }
+  .impact b { color: var(--gold); font-weight: 500; }
+
+  .empty, .error {
+    color: var(--text-secondary);
+    padding: 40px 0;
+    font-size: 14.5px;
+  }
+  .error { color: var(--bearish); }
+
+  footer {
+    padding: 24px 32px 40px;
+    color: var(--text-secondary);
+    font-size: 12.5px;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  footer a { color: var(--gold); }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>نبض السوق — أخبار EGX وأمريكا</h1>
+  <p>يعرض هذا التطبيق الأخبار المتداولة المرتبطة بشركات مصرية وأمريكية محددة، مع تقدير تلقائي للمشاعر (Sentiment) كسياق فقط.</p>
+  <div class="notice">⚠ هذه ليست توصية بالشراء أو البيع، ولا تقييمًا لصحة الخبر. "متعدد المصادر" يعني إن أكتر من مصدر نشر خبر مشابه — مش دليل على إنه صحيح. "التأثير المحتمل" تحليل مبني على قواعد ثابتة، مش توقع AI للمستقبل.</div>
+</header>
+
+<div class="controls">
+  <button class="tab active" data-market="">الكل</button>
+  <button class="tab" data-market="egx">🇪🇬 EGX</button>
+  <button class="tab" data-market="us">🇺🇸 US</button>
+  <button class="refresh" id="refreshBtn">تحديث</button>
+</div>
+
+<main>
+  <div class="status-line" id="statusLine">جاري التحميل...</div>
+  <div id="newsList"></div>
+</main>
+
+<footer>
+  البيانات من <a href="https://www.marketaux.com/" target="_blank" rel="noopener">Marketaux</a> (الخطة المجانية). راجع
+  <a href="/disclaimer">الإخلاء القانوني الكامل</a> قبل اتخاذ أي قرار مالي.
+</footer>
+
+<script>
+  let currentMarket = "";
+  const newsList = document.getElementById("newsList");
+  const statusLine = document.getElementById("statusLine");
+  const refreshBtn = document.getElementById("refreshBtn");
+
+  document.querySelectorAll(".tab").forEach(btn => {
+    btn.addEventListener("click", () => {
+      document.querySelectorAll(".tab").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      currentMarket = btn.dataset.market;
+      loadNews();
+    });
+  });
+
+  refreshBtn.addEventListener("click", loadNews);
+
+  function sentimentTextAr(label) {
+    return { bullish: "إيجابي", bearish: "سلبي", neutral: "محايد" }[label] || label;
+  }
+
+  async function loadNews() {
+    refreshBtn.disabled = true;
+    statusLine.textContent = "جاري التحميل...";
+    newsList.innerHTML = "";
+
+    const url = currentMarket ? `/api/news?market=${currentMarket}` : "/api/news";
+
+    try {
+      const res = await fetch(url);
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({ detail: "خطأ غير معروف" }));
+        statusLine.innerHTML = `<div class="error">تعذّر تحميل الأخبار: ${err.detail}</div>`;
+        refreshBtn.disabled = false;
+        return;
+      }
+      const data = await res.json();
+      statusLine.textContent = `${data.count} خبر`;
+
+      if (data.count === 0) {
+        newsList.innerHTML = `<div class="empty">لا توجد أخبار متاحة لهذا السوق الآن. هذا لا يعني عدم وجود أخبار فعليًا — قد تكون التغطية المجانية محدودة لهذا السوق تحديدًا.</div>`;
+      }
+
+      data.items.forEach(item => {
+        const primaryTicker = item.tickers[0];
+        const row = document.createElement("div");
+        row.className = "row";
+        const isMulti = item.verification_status === "MULTI_SOURCE_VERIFIED";
+        const verifyLabel = isMulti
+          ? `متعدد المصادر (${item.corroborating_sources.length})`
+          : "مصدر واحد";
+        const impactLine = item.potential_impact && item.potential_impact.length
+          ? `<div class="impact">تأثير محتمل: ${item.potential_impact.join(" · ")}</div>`
+          : "";
+
+        row.innerHTML = `
+          <div class="dot ${primaryTicker ? primaryTicker.sentiment_label : 'neutral'}"></div>
+          <div>
+            <div class="row-head">
+              ${item.tickers.map(t => `<span class="ltr ticker">${t.symbol}</span>`).join("")}
+              ${primaryTicker ? `<span class="sentiment-tag ${primaryTicker.sentiment_label}">${sentimentTextAr(primaryTicker.sentiment_label)}</span>` : ""}
+              <span class="verify-tag ${isMulti ? 'multi' : 'single'}">${verifyLabel}</span>
+              <span class="data-status">${item.data_status}</span>
+            </div>
+            <a class="headline" href="${item.source_url}" target="_blank" rel="noopener">${item.headline}</a>
+            <div class="meta ltr">${item.source} · ${new Date(item.published_at).toLocaleString()}</div>
+            ${impactLine}
+          </div>
+        `;
+        newsList.appendChild(row);
+      });
+    } catch (e) {
+      statusLine.innerHTML = `<div class="error">تعذّر الاتصال بالخادم.</div>`;
+    } finally {
+      refreshBtn.disabled = false;
+    }
+  }
+
+  loadNews();
+</script>
+
+</body>
+</html>
